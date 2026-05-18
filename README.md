@@ -1015,9 +1015,6 @@ PHP_Laravel12_Captcha_Auth/
 
 ---
 
-## Security Notes
-
-- **Never push `.env` to GitHub** – it contains your `APP_KEY`, DB credentials, and captcha keys.
-- Laravel adds `.env` to `.gitignore` by default — always verify before pushing.
-- Use `.env.example` to share config structure without real values.
-- Math Captcha answer is stored in **server-side session only** — it is never exposed in HTML source.
+<img width="1903" height="910" alt="Screenshot 2026-05-18 171214" src="https://github.com/user-attachments/assets/216fb7a6-6317-4929-abda-2b7dfa3a8897" />
+<img width="1919" height="906" alt="Screenshot 2026-05-18 171200" src="https://github.com/user-attachments/assets/65214daf-856c-4ff9-ac30-88bd03f6d572" />
+<img width="1919" height="905" alt="Screenshot 2026-05-18 171150" src="https://github.com/user-attachments/assets/d25bfd55-7d23-47e5-b959-c8f7bc8a2d2b" />
