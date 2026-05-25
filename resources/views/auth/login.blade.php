@@ -21,12 +21,12 @@
         .auth-card{
             width:100%;
             max-width:470px;
-            background:rgba(255,255,255,0.08);
+            background:rgba(255,255,255,.08);
             backdrop-filter:blur(18px);
             border-radius:25px;
             padding:40px;
-            border:1px solid rgba(255,255,255,0.1);
-            box-shadow:0 10px 40px rgba(0,0,0,0.35);
+            border:1px solid rgba(255,255,255,.1);
+            box-shadow:0 10px 40px rgba(0,0,0,.35);
         }
 
         .title{
@@ -47,7 +47,7 @@
             height:55px;
             border-radius:14px;
             border:none;
-            background:rgba(255,255,255,0.12);
+            background:rgba(255,255,255,.12);
             color:#fff;
             padding-left:18px;
         }
@@ -57,25 +57,40 @@
         }
 
         .form-control:focus{
-            background:rgba(255,255,255,0.18);
+            background:rgba(255,255,255,.18);
             color:#fff;
-            box-shadow:none;
             border:1px solid #38bdf8;
+            box-shadow:none;
         }
 
         .captcha-box{
             background:#fff;
             border-radius:16px;
             padding:14px;
-            text-align:center;
             margin-bottom:20px;
         }
 
         .captcha-text{
-            font-size:34px;
+            font-size:30px;
             font-weight:800;
             color:#0f172a;
             letter-spacing:3px;
+        }
+
+        .refresh-btn{
+            border:none;
+            width:45px;
+            height:45px;
+            border-radius:12px;
+            background:#0f172a;
+            color:#fff;
+            font-size:22px;
+            transition:.3s;
+        }
+
+        .refresh-btn:hover{
+            transform:rotate(180deg);
+            background:#1e293b;
         }
 
         .btn-auth{
@@ -86,12 +101,12 @@
             color:#fff;
             font-size:18px;
             font-weight:600;
-            transition:0.3s;
+            transition:.3s;
         }
 
         .btn-auth:hover{
             transform:translateY(-2px);
-            box-shadow:0 10px 20px rgba(16,185,129,0.4);
+            box-shadow:0 10px 20px rgba(16,185,129,.4);
         }
 
         .bottom-link{
@@ -112,6 +127,7 @@
     </style>
 
 </head>
+
 <body>
 
 <div class="auth-card">
@@ -123,29 +139,23 @@
     </p>
 
     @if(session('success'))
-
         <div class="alert alert-success">
             {{ session('success') }}
         </div>
-
     @endif
 
-    @if ($errors->any())
-
+    @if($errors->any())
         <div class="alert alert-danger">
-
             <ul class="mb-0">
 
-                @foreach ($errors->all() as $error)
+                @foreach($errors->all() as $error)
 
                     <li>{{ $error }}</li>
 
                 @endforeach
 
             </ul>
-
         </div>
-
     @endif
 
     <form action="{{ route('login.store') }}" method="POST">
@@ -154,41 +164,62 @@
 
         <div class="mb-3">
 
-            <input type="text"
-                   name="mobile"
-                   autocomplete="username"
-                   class="form-control"
-                   placeholder="Mobile Number"
-                   required>
+            <input
+                type="text"
+                name="mobile"
+                value="{{ old('mobile') }}"
+                autocomplete="username"
+                class="form-control"
+                placeholder="Mobile Number"
+                required>
 
         </div>
 
         <div class="mb-4">
 
-            <input type="password"
-                   name="password"
-                   autocomplete="current-password"
-                   class="form-control"
-                   placeholder="Password"
-                   required>
+            <input
+                type="password"
+                name="password"
+                autocomplete="current-password"
+                class="form-control"
+                placeholder="Password"
+                required>
 
         </div>
 
+
         <div class="captcha-box">
 
-            <div class="captcha-text">
-                {{ session('captcha_question') }} = ?
+            <div class="d-flex justify-content-center align-items-center gap-3">
+
+                <div class="captcha-text" id="captcha">
+
+                    {{ session('captcha_question') }} = ?
+
+                </div>
+
+                <button
+                    type="button"
+                    class="refresh-btn"
+                    id="refreshCaptcha">
+
+                    ↻
+
+                </button>
+
             </div>
 
         </div>
 
+
         <div class="mb-4">
 
-            <input type="text"
-                   name="captcha"
-                   class="form-control"
-                   placeholder="Solve Captcha"
-                   required>
+            <input
+                type="text"
+                name="captcha"
+                class="form-control"
+                placeholder="Solve Captcha"
+                required>
 
         </div>
 
@@ -209,6 +240,26 @@
     </div>
 
 </div>
+
+
+<script>
+
+document.getElementById('refreshCaptcha').addEventListener('click',function(){
+
+    fetch('/refresh-captcha')
+
+    .then(response=>response.json())
+
+    .then(data=>{
+
+        document.getElementById('captcha').innerHTML =
+        data.captcha + ' = ?';
+
+    });
+
+});
+
+</script>
 
 </body>
 </html>
