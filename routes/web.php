@@ -19,7 +19,23 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', function () {
-        return view('dashboard');
+
+        $search = request('search');
+
+        $activities = \App\Models\LoginActivity::where('user_id', auth()->id())
+
+            ->when($search, function ($query) use ($search) {
+
+                $query->where('ip_address', 'like', "%{$search}%")
+                    ->orWhere('user_agent', 'like', "%{$search}%");
+            })
+
+            ->oldest()
+
+            ->paginate(4);
+
+        return view('dashboard', compact('activities'));
+
     })->name('dashboard');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
