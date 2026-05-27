@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\LoginActivity;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,13 +13,13 @@ class AuthController extends Controller
 {
     private function generateCaptcha()
     {
-        $num1 = rand(1,20);
-        $num2 = rand(1,20);
+        $num1 = rand(1, 20);
+        $num2 = rand(1, 20);
 
-        $operators = ['+','-','*'];
+        $operators = ['+', '-', '*'];
         $operator = $operators[array_rand($operators)];
 
-        $answer = match($operator){
+        $answer = match ($operator) {
             '+' => $num1 + $num2,
             '-' => $num1 - $num2,
             '*' => $num1 * $num2
@@ -77,7 +77,7 @@ class AuthController extends Controller
 
         return redirect()
             ->route('login')
-            ->with('success','Registration Successful');
+            ->with('success', 'Registration Successful');
     }
 
     public function showLogin()
@@ -95,9 +95,9 @@ class AuthController extends Controller
             'captcha' => 'required'
         ]);
 
-        $key = Str::lower($data['mobile']).'|'.$request->ip();
+        $key = Str::lower($data['mobile']) . '|' . $request->ip();
 
-        if (RateLimiter::tooManyAttempts($key,5)) {
+        if (RateLimiter::tooManyAttempts($key, 5)) {
 
             return back()->withErrors([
                 'mobile' => 'Too many failed attempts. Try again after 2 minutes.'
@@ -106,7 +106,7 @@ class AuthController extends Controller
 
         if ($data['captcha'] != session('captcha_answer')) {
 
-            RateLimiter::hit($key,120);
+            RateLimiter::hit($key, 120);
 
             $this->generateCaptcha();
 
@@ -117,10 +117,12 @@ class AuthController extends Controller
                 ->withInput();
         }
 
-        if (Auth::attempt([
-            'mobile' => $data['mobile'],
-            'password' => $data['password']
-        ])) {
+        if (
+            Auth::attempt([
+                'mobile' => $data['mobile'],
+                'password' => $data['password']
+            ])
+        ) {
 
             RateLimiter::clear($key);
 
@@ -130,10 +132,21 @@ class AuthController extends Controller
                 'last_login' => now()
             ]);
 
+            LoginActivity::create([
+
+                'user_id' => Auth::id(),
+
+                'ip_address' => $request->ip(),
+
+                'user_agent' => $request->userAgent(),
+
+                'login_time' => now(),
+            ]);
+
             return redirect()->route('dashboard');
         }
 
-        RateLimiter::hit($key,120);
+        RateLimiter::hit($key, 120);
 
         return back()->withErrors([
             'mobile' => 'Invalid Credentials'
